@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Admin</title><link rel="stylesheet" href="/static/style.css"></head>
+<body>
+<div class="container-wide">
+<h1>All Users</h1>
+<table><thead><tr><th>ID</th><th>Name</th><th>Age</th><th>Weight</th><th>Goal</th><th>Intensity</th><th>Original</th><th>Updated</th></tr></thead>
+<tbody>{% for u in users %}<tr>
+<td>{{ u.id }}</td><td>{{ u.name }}</td><td>{{ u.age }}</td><td>{{ u.weight }}</td>
+<td>{{ u.goal }}</td><td>{{ u.intensity }}</td>
+<td><pre>{{ u.original_plan }}</pre></td><td><pre>{{ u.updated_plan }}</pre></td>
+</tr>{% endfor %}</tbody></table>
+<p style="text-align:center"><a href="/">← Back</a></p>
+</div></body></html>

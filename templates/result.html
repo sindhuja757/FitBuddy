@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Your Plan</title><link rel="stylesheet" href="/static/style.css"></head>
+<body>
+<div class="container">
+<h1>Your Workout Plan</h1>
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+{% if username %}
+<div class="card"><h3>User Info</h3>
+<p><b>Name:</b> {{ username }}</p><p><b>ID:</b> {{ user_id }}</p>
+<p><b>Age:</b> {{ age }}</p><p><b>Weight:</b> {{ weight }} kg</p>
+<p><b>Goal:</b> {{ goal }}</p><p><b>Intensity:</b> {{ intensity }}</p>
+</div>{% endif %}
+<div class="card"><h3>Workout Plan</h3><pre id="workout-plan-text">{{ workout_plan }}</pre></div>
+<div class="card"><h3>Nutrition Tip</h3><p id="nutrition-tip-text">{{ nutrition_tip }}</p></div>
+<div class="card"><h3>Share Feedback</h3>
+<form action="/submit-feedback" method="post">
+<label>User ID:</label><input type="number" name="user_id" required>
+<label>Feedback:</label><textarea name="feedback" rows="3" required></textarea>
+<button type="submit">Submit</button>
+</form></div>
+<p style="text-align:center"><a href="/">← Back</a></p>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const planPre = document.getElementById('workout-plan-text');
+    const tipP = document.getElementById('nutrition-tip-text');
+    const user_id = "{{ user_id }}";
+    const goal = "{{ goal }}";
+    const intensity = "{{ intensity }}";
+    if (planPre && planPre.textContent.includes("Generating")) {
+        planPre.textContent = "";
+        const url = `/stream-workout?goal=${encodeURIComponent(goal)}&intensity=${encodeURIComponent(intensity)}&user_id=${user_id}`;
+        fetch(url).then(res => {
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let text = "";
+            function read() {
+                reader.read().then(({done, value}) => {
+                    if (done) return;
+                    text += decoder.decode(value, {stream: true});
+                    planPre.textContent = text;
+                    read();
+                });
+            }
+            read();
+        });
+        fetch(`/generate-tip?goal=${encodeURIComponent(goal)}`)
+            .then(r => r.json()).then(d => { tipP.textContent = d.tip; });
+    }
+});
+</script>
+</body></html>
